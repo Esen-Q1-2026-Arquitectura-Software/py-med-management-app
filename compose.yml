@@ -1,0 +1,23 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: mysql_server
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassw
+      MYSQL_DATABASE: med-management-db
+      MYSQL_USER: med-user
+      MYSQL_PASSWORD: 12345
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - backend_network
+
+volumes:
+  db_data:
+
+networks:
+  backend_network:
+    driver: bridge
