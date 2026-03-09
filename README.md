@@ -10,3 +10,15 @@ structura
     folder be - fastapi
     folder fe - flask
 
+entitites
+    usuarios
+    medicos
+        1. dejamos la especialidad como texto
+            pros
+            cons
+        2. crear la tabla pero no mantenerla (agregar una especialidades, sql)
+            pros
+            cons
+        3. crear la tabla y mantenerla (admin - crud)
+            pros
+            cons
