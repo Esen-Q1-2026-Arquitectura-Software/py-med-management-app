@@ -41,14 +41,15 @@ CREATE TABLE citas (
 -- Tabla: historial
 -- =============================================
 CREATE TABLE historial (
-    id               INT AUTO_INCREMENT PRIMARY KEY,
-    usuario_id       INT NOT NULL,
-    medico_id        INT NOT NULL,
-    fecha            DATE NOT NULL,
-    hora             TIME,
-    motivo_cita      TEXT,
-    diagnosticos     TEXT,
-    notas_consultas  TEXT,
-    FOREIGN KEY (usuario_id) REFERENCES usuarios(id),
-    FOREIGN KEY (medico_id) REFERENCES medicos(id)
+    id          INT AUTO_INCREMENT PRIMARY KEY,
+    idusuario   INT NOT NULL,
+    idcita      INT NOT NULL,
+    idmedico    INT NOT NULL,
+    FOREIGN KEY (idusuario) REFERENCES usuarios(id),
+    FOREIGN KEY (idcita)    REFERENCES citas(id),
+    FOREIGN KEY (idmedico)  REFERENCES medicos(id)
 );
+
+CREATE INDEX idx_historial_idusuario ON historial (idusuario);
+CREATE INDEX idx_historial_idcita    ON historial (idcita);
+CREATE INDEX idx_historial_idmedico  ON historial (idmedico);
