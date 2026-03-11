@@ -1,24 +1,37 @@
-Be: fastapi
-Fe: flask
-database: mysql
+# py-med-management-app
 
-esta es una aplicacion medica con registro y login, al hacer login un usuario pasa a un dashboard adonde puede hacer
-citas con distintos medicos de la red. al generar una cita, el medico puede poner lo que paso y guardarse luego como 
-parte del historial del usuario. luego cualquier medico puede ver el historial medico ya en proximas citas. 
+| Capa       | Tecnología |
+|------------|------------|
+| Backend    | FastAPI    |
+| Frontend   | Flask      |
+| Base de datos | MySQL   |
 
-structura
-    folder be - fastapi
-    folder fe - flask
+## Descripción
 
-entitites
-    usuarios
-    medicos
-        1. dejamos la especialidad como texto
-            pros
-            cons
-        2. crear la tabla pero no mantenerla (agregar una especialidades, sql)
-            pros
-            cons
-        3. crear la tabla y mantenerla (admin - crud)
-            pros
-            cons
+Aplicación médica con registro y login. Al hacer login, un usuario accede a un dashboard donde puede hacer citas con distintos médicos de la red. Al generar una cita, el médico puede registrar lo que ocurrió, guardándose luego como parte del historial del usuario. Cualquier médico puede ver el historial médico en próximas citas.
+
+## Estructura
+
+```
+be/   → FastAPI (backend)
+fe/   → Flask  (frontend)
+```
+
+## Entidades
+
+- Usuarios
+- Médicos
+
+### Especialidades — Opciones de diseño
+
+1. **Dejar la especialidad como texto**
+   - Pros:
+   - Cons:
+
+2. **Crear la tabla pero no mantenerla** *(agregar especialidades vía SQL)*
+   - Pros:
+   - Cons:
+
+3. **Crear la tabla y mantenerla** *(admin — CRUD)*
+   - Pros:
+   - Cons:
