@@ -21,6 +21,8 @@ fe/   → Flask  (frontend)
 
 - Usuarios
 - Médicos
+- Citas
+- Historial
 
 ### Especialidades — Opciones de diseño
 
