@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard — MedManage</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #fefbf6;
+            --primary: #0d766e;
+            --primary-hover: #0f9488;
+            --accent: #c2410c;
+            --text: #1c1917;
+            --text-muted: #57534e;
+            --border: #e7e5e4;
+            --radius: 1rem;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1.5rem; }
+        .card { background: #fff; padding: 2.5rem 2.25rem; border-radius: var(--radius); box-shadow: 0 4px 24px rgba(13, 118, 110, 0.08); max-width: 480px; width: 100%; text-align: center; }
+        .avatar { width: 64px; height: 64px; border-radius: 50%; background: var(--primary); color: #fff; font-size: 1.75rem; font-weight: 700; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem; }
+        h1 { font-size: 1.5rem; font-weight: 700; color: var(--text); margin-bottom: 0.25rem; }
+        .subtitle { color: var(--text-muted); font-size: 0.9375rem; margin-bottom: 2rem; }
+        .session-box { background: var(--bg); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 2rem; }
+        .session-label { font-size: 0.8125rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+        .countdown { font-size: 2.5rem; font-weight: 800; color: var(--primary); letter-spacing: 0.02em; font-variant-numeric: tabular-nums; }
+        .countdown.expiring { color: var(--accent); }
+        .logout-btn {
+            display: inline-block; padding: 0.7rem 2rem; font-family: inherit; font-size: 0.9375rem;
+            font-weight: 600; border-radius: var(--radius); border: 1.5px solid var(--border);
+            background: #fff; color: var(--text-muted); cursor: pointer; text-decoration: none;
+            transition: border-color 0.15s, color 0.15s;
+        }
+        .logout-btn:hover { border-color: var(--accent); color: var(--accent); }
+        .expired-msg { color: var(--accent); font-weight: 600; margin-top: 1rem; display: none; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="avatar">{{ name[0] | upper }}</div>
+        <h1>Bienvenido, {{ name }}.</h1>
+        <p class="subtitle">Tu sesión está activa.</p>
+
+        <div class="session-box">
+            <p class="session-label">Tiempo restante en sesión</p>
+            <div class="countdown" id="countdown">--:--</div>
+        </div>
+
+        <a href="/logout" class="logout-btn">Cerrar sesión</a>
+        <p class="expired-msg" id="expired-msg">Tu sesión ha expirado. Redirigiendo...</p>
+    </div>
+
+    <script>
+        const expiresAt = new Date("{{ expires_at }}");
+
+        function updateCountdown() {
+            const now = new Date();
+            const diffMs = expiresAt - now;
+            const el = document.getElementById("countdown");
+
+            if (diffMs <= 0) {
+                el.textContent = "00:00";
+                document.getElementById("expired-msg").style.display = "block";
+                setTimeout(function () {
+                    window.location.href = "/logout";
+                }, 1500);
+                return;
+            }
+
+            const totalSecs = Math.floor(diffMs / 1000);
+            const mins = Math.floor(totalSecs / 60).toString().padStart(2, "0");
+            const secs = (totalSecs % 60).toString().padStart(2, "0");
+            el.textContent = mins + ":" + secs;
+
+            if (totalSecs <= 60) {
+                el.classList.add("expiring");
+            } else {
+                el.classList.remove("expiring");
+            }
+        }
+
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
+    </script>
+</body>
+</html>
