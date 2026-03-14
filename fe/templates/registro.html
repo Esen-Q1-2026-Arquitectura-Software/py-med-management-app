@@ -98,5 +98,13 @@
 
         <p class="login-link">¿Ya tienes cuenta? <a href="/login">Inicia sesión</a></p>
     </div>
+
+    {% if redirect_to %}
+    <script>
+        setTimeout(function() {
+            window.location.href = "{{ redirect_to }}";
+        }, 3000);
+    </script>
+    {% endif %}
 </body>
 </html>

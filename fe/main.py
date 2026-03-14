@@ -49,10 +49,12 @@ def registro():
             )
             if resp.status_code == 200:
                 flash(
-                    "¡Cuenta creada exitosamente! Ahora puedes iniciar sesión.",
+                    "¡Cuenta creada exitosamente! Redirigiendo al inicio de sesión...",
                     "success",
                 )
-                return redirect(url_for("login"))
+                return render_template(
+                    "registro.html", form=RegistroForm(), redirect_to=url_for("login")
+                )
             else:
                 try:
                     error = resp.json().get("detail", "Error al registrar.")
