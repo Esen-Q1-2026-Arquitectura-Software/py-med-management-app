@@ -1,10 +1,12 @@
 from fastapi import FastAPI
 
+from be.routers import medico as medico_router
 from be.routers import usuario as usuario_router
 
 app = FastAPI()
 
 app.include_router(usuario_router.router)
+app.include_router(medico_router.router)
 
 
 @app.get("/")

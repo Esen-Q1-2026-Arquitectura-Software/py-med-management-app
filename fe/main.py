@@ -3,7 +3,7 @@ from datetime import datetime, timedelta, timezone
 from functools import wraps
 
 import httpx
-from flask import Flask, flash, redirect, render_template, session, url_for
+from flask import Flask, flash, redirect, render_template, request, session, url_for
 from flask_wtf import FlaskForm
 from wtforms import PasswordField, StringField, SubmitField, TextAreaField
 from wtforms.validators import DataRequired, Email, Length
@@ -57,6 +57,23 @@ def login_required(f):
     return decorated
 
 
+def parse_api_error(resp: httpx.Response, fallback: str) -> str:
+    try:
+        detail = resp.json().get("detail")
+        if isinstance(detail, str) and detail.strip():
+            return detail
+    except Exception:
+        pass
+    return fallback
+
+
+def auth_headers() -> dict[str, str]:
+    token = session.get("token")
+    if not token:
+        return {}
+    return {"Authorization": f"Bearer {token}"}
+
+
 # ── Routes ───────────────────────────────────────────────────────────────────
 
 
@@ -66,13 +83,119 @@ def index():
     return redirect(url_for("dashboard"))
 
 
-@app.route("/dashboard")
+@app.route("/dashboard", methods=["GET", "POST"])
 @login_required
 def dashboard():
+    headers = auth_headers()
+
+    if request.method == "POST":
+        action = (request.form.get("action") or "").strip()
+
+        if action == "create_medico":
+            payload = {
+                "name": (request.form.get("name") or "").strip(),
+                "email": (request.form.get("email") or "").strip(),
+                "especialidad": (request.form.get("especialidad") or "").strip()
+                or None,
+            }
+            if not payload["name"] or not payload["email"]:
+                flash("Nombre y correo son obligatorios.", "error")
+                return redirect(url_for("dashboard"))
+
+            try:
+                resp = httpx.post(
+                    f"{API_URL}/medicos",
+                    json=payload,
+                    headers=headers,
+                    timeout=5,
+                )
+                if resp.status_code == 200:
+                    flash("Medico creado correctamente.", "success")
+                else:
+                    flash(parse_api_error(resp, "No se pudo crear el medico."), "error")
+            except httpx.RequestError:
+                flash("No se pudo conectar con el servidor. Intentalo mas tarde.", "error")
+            return redirect(url_for("dashboard"))
+
+        if action == "update_medico":
+            medico_id = (request.form.get("medico_id") or "").strip()
+            payload = {
+                "name": (request.form.get("name") or "").strip(),
+                "email": (request.form.get("email") or "").strip(),
+                "especialidad": (request.form.get("especialidad") or "").strip()
+                or None,
+            }
+            if not medico_id.isdigit():
+                flash("El medico a actualizar es invalido.", "error")
+                return redirect(url_for("dashboard"))
+            if not payload["name"] or not payload["email"]:
+                flash("Nombre y correo son obligatorios.", "error")
+                return redirect(url_for("dashboard", edit=medico_id))
+
+            try:
+                resp = httpx.put(
+                    f"{API_URL}/medicos/{medico_id}",
+                    json=payload,
+                    headers=headers,
+                    timeout=5,
+                )
+                if resp.status_code == 200:
+                    flash("Medico actualizado correctamente.", "success")
+                else:
+                    flash(
+                        parse_api_error(resp, "No se pudo actualizar el medico."),
+                        "error",
+                    )
+            except httpx.RequestError:
+                flash("No se pudo conectar con el servidor. Intentalo mas tarde.", "error")
+            return redirect(url_for("dashboard"))
+
+        if action == "delete_medico":
+            medico_id = (request.form.get("medico_id") or "").strip()
+            if not medico_id.isdigit():
+                flash("El medico a eliminar es invalido.", "error")
+                return redirect(url_for("dashboard"))
+
+            try:
+                resp = httpx.delete(
+                    f"{API_URL}/medicos/{medico_id}",
+                    headers=headers,
+                    timeout=5,
+                )
+                if resp.status_code == 200:
+                    flash("Medico eliminado correctamente.", "success")
+                else:
+                    flash(parse_api_error(resp, "No se pudo eliminar el medico."), "error")
+            except httpx.RequestError:
+                flash("No se pudo conectar con el servidor. Intentalo mas tarde.", "error")
+            return redirect(url_for("dashboard"))
+
+        flash("Accion invalida.", "error")
+        return redirect(url_for("dashboard"))
+
+    medicos = []
+    try:
+        resp = httpx.get(f"{API_URL}/medicos", headers=headers, timeout=5)
+        if resp.status_code == 200:
+            medicos = resp.json()
+        else:
+            flash(parse_api_error(resp, "No se pudo cargar la lista de medicos."), "error")
+    except httpx.RequestError:
+        flash("No se pudo conectar con el servidor. Intentalo mas tarde.", "error")
+
+    edit_id = request.args.get("edit", type=int)
+    editing_medico = None
+    if edit_id is not None:
+        editing_medico = next((m for m in medicos if m.get("id") == edit_id), None)
+        if editing_medico is None:
+            flash("El medico que intentas editar no existe.", "error")
+
     return render_template(
         "dashboard.html",
         name=session.get("name", "Usuario"),
         expires_at=session.get("expires_at"),
+        medicos=medicos,
+        editing_medico=editing_medico,
     )
 
 
