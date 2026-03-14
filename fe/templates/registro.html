@@ -20,18 +20,83 @@
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1.5rem; }
-        .card { background: #fff; padding: 2rem; border-radius: var(--radius); box-shadow: 0 4px 24px rgba(13, 118, 110, 0.08); max-width: 380px; width: 100%; }
-        h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--primary); }
-        p { color: var(--text-muted); font-size: 0.9375rem; margin-bottom: 1.5rem; }
-        .btn { display: inline-flex; align-items: center; padding: 0.75rem 1.25rem; font-family: inherit; font-weight: 600; border-radius: var(--radius); text-decoration: none; color: #fff; border: none; background: var(--primary); cursor: pointer; margin-top: 0.5rem; }
+        .card { background: #fff; padding: 2rem 2.25rem; border-radius: var(--radius); box-shadow: 0 4px 24px rgba(13, 118, 110, 0.08); max-width: 420px; width: 100%; }
+        h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.25rem; color: var(--primary); }
+        .subtitle { color: var(--text-muted); font-size: 0.9375rem; margin-bottom: 1.5rem; }
+        .field { margin-bottom: 1.1rem; }
+        label { display: block; font-weight: 600; font-size: 0.875rem; margin-bottom: 0.35rem; color: var(--text); }
+        input, textarea {
+            width: 100%; padding: 0.6rem 0.85rem; font-family: inherit; font-size: 0.9375rem;
+            border: 1.5px solid var(--border); border-radius: 0.5rem; background: var(--bg);
+            color: var(--text); transition: border-color 0.15s;
+        }
+        input:focus, textarea:focus { outline: none; border-color: var(--primary); }
+        textarea { resize: vertical; min-height: 80px; }
+        .error { color: var(--accent); font-size: 0.8125rem; margin-top: 0.3rem; }
+        .flash { padding: 0.75rem 1rem; border-radius: 0.5rem; margin-bottom: 1rem; font-size: 0.9rem; }
+        .flash.success { background: #d1fae5; color: #065f46; }
+        .flash.error   { background: #fee2e2; color: #991b1b; }
+        .btn {
+            display: block; width: 100%; padding: 0.75rem; font-family: inherit; font-size: 1rem;
+            font-weight: 700; border-radius: var(--radius); border: none; background: var(--primary);
+            color: #fff; cursor: pointer; margin-top: 0.5rem; transition: background 0.15s;
+        }
         .btn:hover { background: var(--primary-hover); }
+        .login-link { text-align: center; margin-top: 1.25rem; font-size: 0.9rem; color: var(--text-muted); }
+        .login-link a { color: var(--primary); font-weight: 600; text-decoration: none; }
+        .login-link a:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
     <div class="card">
         <h1>Crear cuenta</h1>
-        <p>Página de registro en construcción.</p>
-        <a href="/" class="btn">Volver al inicio</a>
+        <p class="subtitle">Regístrate para gestionar tus citas médicas.</p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% for category, message in messages %}
+            <div class="flash {{ category }}">{{ message }}</div>
+          {% endfor %}
+        {% endwith %}
+
+        <form method="POST" novalidate>
+            {{ form.hidden_tag() }}
+
+            <div class="field">
+                {{ form.name.label }}
+                {{ form.name(placeholder="Tu nombre completo") }}
+                {% for error in form.name.errors %}
+                    <p class="error">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <div class="field">
+                {{ form.email.label }}
+                {{ form.email(placeholder="correo@ejemplo.com") }}
+                {% for error in form.email.errors %}
+                    <p class="error">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <div class="field">
+                {{ form.passw.label }}
+                {{ form.passw(placeholder="Tu contraseña") }}
+                {% for error in form.passw.errors %}
+                    <p class="error">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <div class="field">
+                {{ form.med_info.label }}
+                {{ form.med_info(placeholder="Alergias, enfermedades crónicas, etc. (opcional)") }}
+                {% for error in form.med_info.errors %}
+                    <p class="error">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            {{ form.submit(class="btn") }}
+        </form>
+
+        <p class="login-link">¿Ya tienes cuenta? <a href="/login">Inicia sesión</a></p>
     </div>
 </body>
 </html>

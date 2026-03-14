@@ -19,7 +19,7 @@ CREATE TABLE medicos (
     id         INT AUTO_INCREMENT PRIMARY KEY,
     name       VARCHAR(255) NOT NULL,
     email      VARCHAR(255) NOT NULL UNIQUE,
-    specialty  VARCHAR(255)
+    especialidad  VARCHAR(255)
 );
 
 -- =============================================
