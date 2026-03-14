@@ -27,14 +27,15 @@ CREATE TABLE medicos (
 -- =============================================
 CREATE TABLE citas (
     id          INT AUTO_INCREMENT PRIMARY KEY,
-    usuario_id  INT NOT NULL,
-    medico_id   INT NOT NULL,
+    usuarioId  INT NOT NULL,
+    medicoId   INT NOT NULL,
     fecha       DATE NOT NULL,
     hora        TIME NOT NULL,
     motivo      TEXT,
     diagnostico TEXT,
-    FOREIGN KEY (usuario_id) REFERENCES usuarios(id),
-    FOREIGN KEY (medico_id) REFERENCES medicos(id)
+    receta      TEXT,
+    FOREIGN KEY (usuarioId) REFERENCES usuarios(id),
+    FOREIGN KEY (medicoId) REFERENCES medicos(id)
 );
 
 -- =============================================
@@ -42,14 +43,14 @@ CREATE TABLE citas (
 -- =============================================
 CREATE TABLE historial (
     id          INT AUTO_INCREMENT PRIMARY KEY,
-    idusuario   INT NOT NULL,
-    idcita      INT NOT NULL,
-    idmedico    INT NOT NULL,
-    FOREIGN KEY (idusuario) REFERENCES usuarios(id),
-    FOREIGN KEY (idcita)    REFERENCES citas(id),
-    FOREIGN KEY (idmedico)  REFERENCES medicos(id)
+    usuarioId   INT NOT NULL,
+    citaId      INT NOT NULL,
+    medicoId    INT NOT NULL,
+    FOREIGN KEY (usuarioId) REFERENCES usuarios(id),
+    FOREIGN KEY (citaId)    REFERENCES citas(id),
+    FOREIGN KEY (medicoId)  REFERENCES medicos(id)
 );
 
-CREATE INDEX idx_historial_idusuario ON historial (idusuario);
-CREATE INDEX idx_historial_idcita    ON historial (idcita);
-CREATE INDEX idx_historial_idmedico  ON historial (idmedico);
+CREATE INDEX idx_historial_usuarioId ON historial (usuarioId);
+CREATE INDEX idx_historial_citaId    ON historial (citaId);
+CREATE INDEX idx_historial_medicoId  ON historial (medicoId);
