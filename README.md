@@ -37,3 +37,7 @@ fe/   → Flask  (frontend)
 3. **Crear la tabla y mantenerla** *(admin — CRUD)*
    - Pros:
    - Cons:
+
+4. **this is a new feature**
+   - Pros:
+   - Cons:
