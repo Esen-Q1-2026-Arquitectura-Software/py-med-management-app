@@ -192,10 +192,80 @@ def dashboard():
 
     return render_template(
         "dashboard.html",
+        active_tab="medicos",
         name=session.get("name", "Usuario"),
         expires_at=session.get("expires_at"),
         medicos=medicos,
         editing_medico=editing_medico,
+    )
+
+
+@app.route("/citas", methods=["GET", "POST"])
+@login_required
+def citas():
+    headers = auth_headers()
+
+    if request.method == "POST":
+        action = (request.form.get("action") or "").strip()
+
+        if action == "create_cita":
+            medico_id = (request.form.get("medico_id") or "").strip()
+            fecha = (request.form.get("fecha") or "").strip()
+            hora = (request.form.get("hora") or "").strip()
+            motivo = (request.form.get("motivo") or "").strip() or None
+
+            if not medico_id.isdigit() or not fecha or not hora:
+                flash("Medico, fecha y hora son obligatorios.", "error")
+                return redirect(url_for("citas", nueva="1"))
+
+            try:
+                resp = httpx.post(
+                    f"{API_URL}/citas",
+                    json={
+                        "medicoId": int(medico_id),
+                        "fecha": fecha,
+                        "hora": hora,
+                        "motivo": motivo,
+                    },
+                    headers=headers,
+                    timeout=5,
+                )
+                if resp.status_code == 200:
+                    flash("Cita creada correctamente.", "success")
+                else:
+                    flash(parse_api_error(resp, "No se pudo crear la cita."), "error")
+            except httpx.RequestError:
+                flash("No se pudo conectar con el servidor. Intentalo mas tarde.", "error")
+            return redirect(url_for("citas"))
+
+        flash("Accion invalida.", "error")
+        return redirect(url_for("citas"))
+
+    citas_list = []
+    medicos = []
+    try:
+        resp = httpx.get(f"{API_URL}/citas", headers=headers, timeout=5)
+        if resp.status_code == 200:
+            citas_list = resp.json()
+        else:
+            flash(parse_api_error(resp, "No se pudo cargar las citas."), "error")
+
+        resp_m = httpx.get(f"{API_URL}/medicos", headers=headers, timeout=5)
+        if resp_m.status_code == 200:
+            medicos = resp_m.json()
+    except httpx.RequestError:
+        flash("No se pudo conectar con el servidor. Intentalo mas tarde.", "error")
+
+    show_nueva_cita = request.args.get("nueva") == "1"
+
+    return render_template(
+        "dashboard.html",
+        active_tab="citas",
+        name=session.get("name", "Usuario"),
+        expires_at=session.get("expires_at"),
+        citas=citas_list,
+        medicos=medicos,
+        show_nueva_cita=show_nueva_cita,
     )
 
 

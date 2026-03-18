@@ -17,6 +17,49 @@ be/   → FastAPI (backend)
 fe/   → Flask  (frontend)
 ```
 
+## Base de datos
+
+> MariaDB / MySQL — ver [`schema.sql`](schema.sql)
+
+### `usuarios`
+| Columna  | Tipo         | Notas         |
+|----------|--------------|---------------|
+| id       | INT (PK)     | auto increment |
+| name     | VARCHAR(255) | NOT NULL      |
+| email    | VARCHAR(255) | UNIQUE        |
+| passw    | VARCHAR(255) | NOT NULL      |
+| med_info | TEXT         |               |
+
+### `medicos`
+| Columna      | Tipo         | Notas         |
+|--------------|--------------|---------------|
+| id           | INT (PK)     | auto increment |
+| name         | VARCHAR(255) | NOT NULL      |
+| email        | VARCHAR(255) | UNIQUE        |
+| especialidad | VARCHAR(255) |               |
+
+### `citas`
+| Columna     | Tipo     | Notas                    |
+|-------------|----------|--------------------------|
+| id          | INT (PK) | auto increment            |
+| usuarioId   | INT (FK) | → `usuarios(id)`         |
+| medicoId    | INT (FK) | → `medicos(id)`          |
+| fecha       | DATE     | NOT NULL                 |
+| hora        | TIME     | NOT NULL                 |
+| motivo      | TEXT     |                          |
+| diagnostico | TEXT     |                          |
+| receta      | TEXT     |                          |
+
+### `historial`
+| Columna   | Tipo     | Notas             |
+|-----------|----------|-------------------|
+| id        | INT (PK) | auto increment     |
+| usuarioId | INT (FK) | → `usuarios(id)`  |
+| citaId    | INT (FK) | → `citas(id)`     |
+| medicoId  | INT (FK) | → `medicos(id)`   |
+
+> Índices de búsqueda en `usuarioId`, `citaId`, `medicoId`.
+
 ## Entidades
 
 - Usuarios
@@ -26,7 +69,7 @@ fe/   → Flask  (frontend)
 
 ### Especialidades — Opciones de diseño
 
-1. **Dejar la especialidad como texto**
+1. **Dejar la especialidad como texto** *(implementado)*
    - Pros:
    - Cons:
 
@@ -35,9 +78,5 @@ fe/   → Flask  (frontend)
    - Cons:
 
 3. **Crear la tabla y mantenerla** *(admin — CRUD)*
-   - Pros:
-   - Cons:
-
-4. **this is a new feature**
    - Pros:
    - Cons:

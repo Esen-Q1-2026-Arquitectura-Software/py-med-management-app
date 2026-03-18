@@ -154,9 +154,23 @@
             border-radius: 0.7rem;
             border: 1px solid transparent;
             background: transparent;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.15s;
         }
 
-        .menu-link.active {
+        .menu-link:visited {
+            color: var(--text);
+        }
+
+        .menu-link:hover {
+            color: var(--primary-hover);
+            background: rgba(15, 118, 110, 0.06);
+            border-color: rgba(15, 118, 110, 0.14);
+        }
+
+        .menu-link.active,
+        .menu-link.active:visited {
             color: var(--primary-hover);
             border-color: rgba(15, 118, 110, 0.18);
             background: rgba(15, 118, 110, 0.1);
@@ -243,6 +257,25 @@
             border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.17);
         }
+
+        select, textarea {
+            width: 100%;
+            border: 1px solid #cbd5e1;
+            border-radius: 0.6rem;
+            background: #ffffff;
+            color: var(--text);
+            padding: 0.62rem 0.75rem;
+            font-size: 0.92rem;
+            font-family: inherit;
+        }
+
+        select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.17);
+        }
+
+        textarea { resize: vertical; }
 
         .form-actions {
             margin-top: 0.8rem;
@@ -418,10 +451,12 @@
         <div class="layout">
             <aside class="sidebar">
                 <p class="menu-title">Menu</p>
-                <a href="{{ url_for('dashboard') }}" class="menu-link active">CRUD de medicos</a>
+                <a href="{{ url_for('dashboard') }}" class="menu-link {% if active_tab == 'medicos' %}active{% endif %}">Medicos</a>
+                <a href="{{ url_for('citas') }}" class="menu-link {{ 'active' if active_tab == 'citas' else '' }}">Citas</a>
             </aside>
 
             <main class="content">
+                {% if active_tab == 'medicos' %}
                 <section class="panel" id="crud-medicos">
                     <h1>{% if editing_medico %}Editar medico{% else %}Nuevo medico{% endif %}</h1>
                     <p class="subtitle">El CRUD de medicos aparece en la seccion de contenido del dashboard.</p>
@@ -530,6 +565,92 @@
                         <p class="empty-state">No hay medicos registrados todavia.</p>
                     {% endif %}
                 </section>
+                {% endif %}
+
+                {% if active_tab == 'citas' %}
+                <section class="panel">
+                    <h1>Citas</h1>
+                    <p class="subtitle">Gestiona tus citas medicas.</p>
+
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                      {% for category, message in messages %}
+                        <div class="flash {{ category }}">{{ message }}</div>
+                      {% endfor %}
+                    {% endwith %}
+
+                    {% if show_nueva_cita %}
+                    <form method="POST" action="{{ url_for('citas') }}">
+                        <input type="hidden" name="action" value="create_cita">
+                        <div class="form-grid">
+                            <div class="field">
+                                <label for="medico_id">Medico</label>
+                                <select id="medico_id" name="medico_id" required>
+                                    <option value="">Seleccionar medico</option>
+                                    {% for m in medicos %}
+                                    <option value="{{ m.id }}">{{ m.name }}{% if m.especialidad %} &mdash; {{ m.especialidad }}{% endif %}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="field">
+                                <label for="fecha">Fecha</label>
+                                <input id="fecha" name="fecha" type="date" required>
+                            </div>
+                            <div class="field">
+                                <label for="hora">Hora</label>
+                                <input id="hora" name="hora" type="time" required>
+                            </div>
+                        </div>
+                        <div class="field" style="margin-top: 0.75rem;">
+                            <label for="motivo">Motivo (opcional)</label>
+                            <textarea id="motivo" name="motivo" rows="2" placeholder="Describe el motivo de la cita..."></textarea>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Guardar cita</button>
+                            <a href="{{ url_for('citas') }}" class="btn btn-secondary">Cancelar</a>
+                        </div>
+                    </form>
+                    {% else %}
+                    <div class="form-actions">
+                        <a href="{{ url_for('citas', nueva='1') }}" class="btn btn-primary">+ Nueva Cita</a>
+                    </div>
+                    {% endif %}
+                </section>
+
+                <section class="panel">
+                    <h2>Mis citas</h2>
+
+                    {% if citas %}
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Medico</th>
+                                    <th>Fecha</th>
+                                    <th>Hora</th>
+                                    <th>Motivo</th>
+                                    <th>Diagnostico</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for cita in citas %}
+                                <tr>
+                                    <td>{{ cita.id }}</td>
+                                    <td>{{ cita.medico_name or cita.medicoId }}</td>
+                                    <td>{{ cita.fecha }}</td>
+                                    <td>{{ cita.hora }}</td>
+                                    <td>{{ cita.motivo or '&mdash;' }}</td>
+                                    <td>{{ cita.diagnostico or '&mdash;' }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="empty-state">No tienes citas registradas todavia.</p>
+                    {% endif %}
+                </section>
+                {% endif %}
 
                 <p class="expired-msg" id="expired-msg">Tu sesion ha expirado. Redirigiendo...</p>
             </main>
