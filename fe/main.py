@@ -13,6 +13,21 @@ app.secret_key = os.getenv("SECRET_KEY", "dev-secret-key")
 
 API_URL = os.getenv("API_URL", "http://127.0.0.1:8000")
 
+CITA_ESTADOS = [
+    "pendiente",
+    "confirmada",
+    "completada",
+    "finalizada",
+    "cancelada",
+]
+ESTADO_LABELS = {
+    "pendiente": "Pendiente",
+    "confirmada": "Confirmada",
+    "completada": "Completada",
+    "finalizada": "Finalizada",
+    "cancelada": "Cancelada",
+}
+
 
 # ── Forms ────────────────────────────────────────────────────────────────────
 
@@ -238,6 +253,32 @@ def citas():
                 flash("No se pudo conectar con el servidor. Intentalo mas tarde.", "error")
             return redirect(url_for("citas"))
 
+        if action == "update_estado_cita":
+            cita_id = (request.form.get("cita_id") or "").strip()
+            estado = (request.form.get("estado") or "").strip()
+
+            if not cita_id.isdigit() or estado not in CITA_ESTADOS:
+                flash("La actualizacion de estado es invalida.", "error")
+                return redirect(url_for("citas"))
+
+            try:
+                resp = httpx.patch(
+                    f"{API_URL}/citas/{cita_id}/estado",
+                    json={"estado": estado},
+                    headers=headers,
+                    timeout=5,
+                )
+                if resp.status_code == 200:
+                    flash("Estado de la cita actualizado correctamente.", "success")
+                else:
+                    flash(
+                        parse_api_error(resp, "No se pudo actualizar el estado de la cita."),
+                        "error",
+                    )
+            except httpx.RequestError:
+                flash("No se pudo conectar con el servidor. Intentalo mas tarde.", "error")
+            return redirect(url_for("citas"))
+
         flash("Accion invalida.", "error")
         return redirect(url_for("citas"))
 
@@ -266,6 +307,8 @@ def citas():
         citas=citas_list,
         medicos=medicos,
         show_nueva_cita=show_nueva_cita,
+        estado_options=CITA_ESTADOS,
+        estado_labels=ESTADO_LABELS,
     )
 
 

@@ -46,9 +46,17 @@ fe/   → Flask  (frontend)
 | medicoId    | INT (FK) | → `medicos(id)`          |
 | fecha       | DATE     | NOT NULL                 |
 | hora        | TIME     | NOT NULL                 |
+| estado      | VARCHAR(30) | `pendiente`, `confirmada`, `completada`, `finalizada`, `cancelada` |
 | motivo      | TEXT     |                          |
 | diagnostico | TEXT     |                          |
 | receta      | TEXT     |                          |
+
+Para bases de datos existentes, agrega la nueva columna con:
+
+```sql
+ALTER TABLE citas
+ADD COLUMN estado VARCHAR(30) NOT NULL DEFAULT 'pendiente';
+```
 
 ### `historial`
 | Columna   | Tipo     | Notas             |

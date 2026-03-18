@@ -31,6 +31,7 @@ CREATE TABLE citas (
     medicoId   INT NOT NULL,
     fecha       DATE NOT NULL,
     hora        TIME NOT NULL,
+    estado      VARCHAR(30) NOT NULL DEFAULT 'pendiente',
     motivo      TEXT,
     diagnostico TEXT,
     receta      TEXT,

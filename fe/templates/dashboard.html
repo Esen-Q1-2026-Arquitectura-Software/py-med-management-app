@@ -386,6 +386,56 @@
 
         .inline-form { display: inline; }
 
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 999px;
+            padding: 0.2rem 0.58rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            border: 1px solid transparent;
+            text-transform: capitalize;
+        }
+
+        .status-pendiente {
+            color: #92400e;
+            background: #fef3c7;
+            border-color: #fde68a;
+        }
+
+        .status-confirmada {
+            color: #1d4ed8;
+            background: #dbeafe;
+            border-color: #bfdbfe;
+        }
+
+        .status-completada,
+        .status-finalizada {
+            color: #166534;
+            background: #dcfce7;
+            border-color: #bbf7d0;
+        }
+
+        .status-cancelada {
+            color: #9f1239;
+            background: #ffe4e6;
+            border-color: #fecdd3;
+        }
+
+        .cita-status-form {
+            display: flex;
+            align-items: center;
+            gap: 0.42rem;
+            flex-wrap: wrap;
+        }
+
+        .cita-status-form select {
+            min-width: 130px;
+            padding: 0.4rem 0.5rem;
+            font-size: 0.82rem;
+            border-radius: 0.5rem;
+        }
+
         .empty-state {
             margin-top: 0.7rem;
             color: var(--text-muted);
@@ -628,8 +678,10 @@
                                     <th>Medico</th>
                                     <th>Fecha</th>
                                     <th>Hora</th>
+                                    <th>Estado</th>
                                     <th>Motivo</th>
                                     <th>Diagnostico</th>
+                                    <th>Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -639,8 +691,25 @@
                                     <td>{{ cita.medico_name or cita.medicoId }}</td>
                                     <td>{{ cita.fecha }}</td>
                                     <td>{{ cita.hora }}</td>
+                                    <td>
+                                        <span class="status-pill status-{{ cita.estado or 'pendiente' }}">
+                                            {{ estado_labels.get(cita.estado, cita.estado or 'Pendiente') }}
+                                        </span>
+                                    </td>
                                     <td>{{ cita.motivo or '&mdash;' }}</td>
                                     <td>{{ cita.diagnostico or '&mdash;' }}</td>
+                                    <td>
+                                        <form method="POST" action="{{ url_for('citas') }}" class="cita-status-form">
+                                            <input type="hidden" name="action" value="update_estado_cita">
+                                            <input type="hidden" name="cita_id" value="{{ cita.id }}">
+                                            <select name="estado" aria-label="Estado de la cita {{ cita.id }}">
+                                                {% for estado in estado_options %}
+                                                    <option value="{{ estado }}" {% if (cita.estado or 'pendiente') == estado %}selected{% endif %}>{{ estado_labels.get(estado, estado) }}</option>
+                                                {% endfor %}
+                                            </select>
+                                            <button type="submit" class="btn-row btn-edit">Actualizar</button>
+                                        </form>
+                                    </td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
